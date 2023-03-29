@@ -1,0 +1,70 @@
+
+\subsection{Martingale Digression}
+
+For a moment we will be formal. Let $(\Omega, \mathcal{A}, \mathbb{P})$ be a measure space. That is $\Omega$ is a fixed set, and $\mathcal{A}$ forms a $\sigma$-algebra of subsets of $\Omega$ \footnote{Recall that a $\sigma$-algebra if \begin{itemize}\item $\Omega, \emptseyt\in \mathcal{A}$ \item $A\in \mathcal{A} \rightarrow A^c\in \mathcal{A}$ \item For any countable sequence of sets $\{F_i\}_{i=1}^n\subset 2^{\Omega}$, $\cup_{i=1}^n F_i\in \mathcal{A}$. \end{itemize}}
+
+\begin{definition}
+We say that $\mathcal{H} = \{\mathcal{H}_i\}_{i=0}^n$ is a filtration if 
+\begin{itemize}
+    \item $\mathcal{H}_0 = \emptyset $
+    \item Each $\mathcal{H}\subset \mathcal{A}$
+    \item $\mathcal{H_t}\subset \mathcal{H}_{t+1}$
+\end{itemize}
+
+A sequence of random variables $\{X_t\}_t=1^{\infty}$ is adapted to to $\mathcal{H}$ if $X_t$ is $\mathcal{H}_t$ measurable. 
+\end{definition}
+Intuitively, the filtration captures all information available to us at each time $t$. Given a collection of random variables $X_1, \dots, X_t, \cdots$, i.e. measurable with respect to $\mathcal{A}$. The most interesting filtrations that we will consider in this class are $\mathcal{H}_t = \sigma\{X_{s}\}_{s=1}^t$ - that is the filtration determined by the random variables. Intuitively, the decisions we make at time $t$ will be dependent on what information we have up to that time. 
+
+\begin{definition}
+    Fix some probability space $(\Omega, \mc{A}, \P)$ and a filtration $\mathcal{H} = \{\mathcal{H}_t\}_{t=1}^{\infty}$. We say that an adapted sequence of random variables $\{X_t\}_{t=1}^{\infty}$ is 
+    \begin{itemize}
+        \item A martingale of $\E[X_{t}|\mb{H}_{t-1}] = X_{t-1}$
+        \item A super-martingale of $\E[X_{t}|\mb{H}_{t-1}] \leq X_{t-1}$
+        \item A sub-martingale of $\E[X_{t}|\mb{H}_{t-1}] \geq X_{t-1}$
+    \end{itemize}    
+\end{definition}
+
+
+\noindent\textbf{Example 1.} Again consider a sequence of random variables $\{X_t\}_{t\geq 1}$ where each $\E[X_{t+1}|X_t] = 0$ (eg iid mean zero random variables). Then define $S_t = X_1+\cdots + X_t$.
+\begin{align*}
+    \E[S_{t+1}|\{X_t\}_{t=1}^n] = \E[S_{t} + X_{t+1}|X_t] = S_t 
+\end{align*}
+so $\{S_t\}_{t\geq 1}$ forms a martingal sequence.
+
+\noindent\textbf{Example 2.} Assume that $X_1, \cdots, X_t\sim p_0(X)$ and let $p_1$ be a different distribution. Then $\Lambda_t$ forms a martingale sequence under $p_0$.
+
+
+\begin{definition}
+    We say that a random variable $\tau\in \mathbb{N}\cup \{\infty\}$ is a stopping time with respect to $\mathcal{H} = \{\mathcal{H}_t\}_{t=1}^{\infty}$ if $\{\tau = t\}\in \mathcal{H}_t$.
+\end{definition}
+Intuitively, a stopping time is a decision on whether to stop or proceed dependent on all the information up to and including time $t$.
+
+INCLUDE INTUITION ON STOPPING TIME BASED ON RANDOM WALK.
+
+\begin{theorem}[Optional Stopping]
+If 
+\begin{itemize}
+\item $\P(\tau < c) = 1$ for some $c$
+\item There exists a constant $c$ so that $\E[|X_{t+1} - X_t||\mathcal{F}_t] \leq c$ and $\E[\tau] \leq \infty$.
+\end{itemize}
+\begin{itemize}
+    \item If $X_t$ forms a martingale, $\E[X_t] = \E[X_0]$
+    \item If $X_t$ forms a super - martingale, $\E[X_t] \leq \E[X_0]$
+    \item If $X_t$ forms a sub - martingale, $\E[X_t] \geq \E[X_0]$
+\end{itemize}
+\end{theorem}
+
+We will use Doob's optimal stopping several times. However, our first application is an important result in it's own right that we will need for the SPRT, Wald's theorem.
+
+\begin{theorem}[Wald's Theorem]
+    Let $\{X_t\}_{t=1}^{\infty}$ be i.i.d. random variables with $\E[X_t] = \mu$. Assume that $\tau$ with $\E[\tau]\leq \infty$ is a stopping time wrt the filtration $\mathcal{F}_{t} = \{X_s\}_{s=1}^t$. Then $\E[\sum_{s=1}^{\tau} X_s] = \mu\E[\tau]$
+\end{theorem}
+\begin{proof}
+    Define the martingale $M_n = \sum_{i=1}^n X_i - \E[X_i]$. By the optional stopping theorem
+    \begin{align*}
+        \E[M_{\tau}] = \E[S_{\tau} - T_{\tau}] = \E[M_0] = 0
+    \end{align*}
+    \textit{Exercise.} Show that it is valid to apply the second condition of the optional stopping theorem. 
+    
+    Subtracting $\E[T_{\tau}] = \mu\E[\tau]$ now gives the result. 
+\end{proof}
