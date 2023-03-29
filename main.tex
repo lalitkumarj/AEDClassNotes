@@ -282,7 +282,7 @@ It's worth thinking about what the test is explicitly is in this case. To make c
     \prod_{i=1}^n \frac{p_1(X_i)}{p_0(X_i)}
     &= \prod_{i=1}^n \frac{e^{-(x-\Delta)^2/2}}{e^{-x^2/2}}\\
     &= \prod_{i=1}^n e^{\Delta(2x_i-\Delta)/2}\\
-    &= e^{\Delta S_n-\Delta^2t/2} \tag{S_n = \sum_{t=1}^n}\\
+    &= e^{\Delta S_n-\Delta^2t/2} \tag{$S_n = \sum_{t=1}^n$}
 \end{align*}
 
 So $\log(\Lambda_n) = \Delta S_n-\Delta^2t/2$. In particular (assuming $\alpha = \beta = \delta$), the SPRT turns into the following 
@@ -311,7 +311,6 @@ In the multi-armed bandit we have $K$ distributions (referred to as \textit{arms
     \State Choose $I_t\in K$
     \State Observe $r_t = X_{I_t, t}$ where $X_{I_t,t} \sim \nu_{I_t}$
 \EndFor
-\EndIf 
 \end{algorithmic}
 \end{algorithm}
 
