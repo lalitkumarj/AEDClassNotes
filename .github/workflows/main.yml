@@ -15,3 +15,11 @@ jobs:
         with:
           name: PDF
           path: main.pdf
+      - name: Upload file to repository
+        run: |
+          git config --global user.name "lalitkumarj"
+          git config --global user.email "lalitkumarj@gmail.com"
+          git add main.pdf
+          git commit -m "commit message"
+          git push
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
