@@ -3,7 +3,7 @@
 
 For a moment we will be formal. Let $(\Omega, \mathcal{A}, \mathbb{P})$ be a measure space. That is $\Omega$ is a fixed set, and $\mathcal{A}$ forms a $\sigma$-algebra of subsets of $\Omega$.
 
-\footnote{Recall that a $\sigma$-algebra if \begin{itemize}\item $\Omega, \emptseyt\in \mathcal{A}$ \item $A\in \mathcal{A} \rightarrow A^c\in \mathcal{A}$ \item For any countable sequence of sets $\{F_i\}_{i=1}^n\subset 2^{\Omega}$, $\cup_{i=1}^n F_i\in \mathcal{A}$. \end{itemize}}
+\footnote{Recall that a $\sigma$-algebra if \begin{itemize}\item $\Omega, \emptyset\in \mathcal{A}$ \item $A\in \mathcal{A} \rightarrow A^c\in \mathcal{A}$ \item For any countable sequence of sets $\{F_i\}_{i=1}^n\subset 2^{\Omega}$, $\cup_{i=1}^n F_i\in \mathcal{A}$. \end{itemize}}
 
 \begin{definition}
 We say that $\mathcal{H} = \{\mathcal{H}_i\}_{i=0}^n$ is a filtration if 
@@ -20,9 +20,9 @@ Intuitively, the filtration captures all information available to us at each tim
 \begin{definition}
     Fix some probability space $(\Omega, \mc{A}, \P)$ and a filtration $\mathcal{H} = \{\mathcal{H}_t\}_{t=1}^{\infty}$. We say that an adapted sequence of random variables $\{X_t\}_{t=1}^{\infty}$ is 
     \begin{itemize}
-        \item A martingale of $\E[X_{t}|\mb{H}_{t-1}] = X_{t-1}$
-        \item A super-martingale of $\E[X_{t}|\mb{H}_{t-1}] \leq X_{t-1}$
-        \item A sub-martingale of $\E[X_{t}|\mb{H}_{t-1}] \geq X_{t-1}$
+        \item A martingale of $\E[X_{t}|\mc{H}_{t-1}] = X_{t-1}$
+        \item A super-martingale of $\E[X_{t}|\mc{H}_{t-1}] \leq X_{t-1}$
+        \item A sub-martingale of $\E[X_{t}|\mc{H}_{t-1}] \geq X_{t-1}$
     \end{itemize}    
 \end{definition}
 
@@ -86,7 +86,6 @@ We will use Doob's optimal stopping several times. However, our first applicatio
         &\geq \E[X_{\tau(t)}] \\
         &\geq \E[X_{\tau(t)} \1\{\tau \leq t\}] \\
         &\geq \epsilon \P(\tau \leq t).
-        
     \end{align*}
     Rearranging shows that $\P(\sup_{s\leq t} X_t \geq \epsilon) \leq \frac{\E[X_0]}{\epsilon}$ for all $t\geq 1$. However note that $A_1\subset A_2\subset A_3\subset \cdots$ so $\P(\sup_{t\geq 1} X_{t} > \epsilon) \leq \frac{\E[X_0]}{\epsilon}$.
 \end{proof}
@@ -159,7 +158,7 @@ Now by Ville's Inequality,
 which is equivalent to the statement that with probability greater than $1-\delta$
 \[|S_t| \leq \sqrt{\frac{t + \rho^{-2}}{\rho^{-2}}\log\left(\frac{t+\rho^{-2}}{\rho^{-2} \delta^2}\right)}\]
 Taking $\rho = 1$ we see that 
-\[\P\left(\exits t: |S_t| \geq \sqrt{(t+1)\log\left(\frac{t+1}{\delta^2}\right)}\right) \leq \delta\]
+\[\P\left(\exists t: |S_t| \geq \sqrt{(t+1)\log\left(\frac{t+1}{\delta^2}\right)}\right) \leq \delta\]
 
 \begin{figure}
     \centering
@@ -187,7 +186,7 @@ In general the LIL does not hold in finite time with a constant of 2. However, s
 
 \noindent \textbf{Anytime Inference in Linear Regression.} 
 
-Imagine that we have collected a dataset $(x_1, y_1), \cdots, (x_n, y_n) \subset \mb{R}^d \times \mb{R}$ where $y_s = x_s^{\top}\theta + \epsilon_s$ where we assume $\epsilon_s$ is mean-zero $1$-sub-Gaussian noise. We also assume that $\{x_s\}_{s=1}^t$ form a \textit{fixed-design}, that is, we are assuming that the choice of $x_s$ is independent of the choice of $(x_1, y_1), \cdots, (x_{s-1}, y_s)$. 
+Imagine that we have collected a dataset $(x_1, y_1), \cdots, (x_n, y_n) \subset \mathbb{R}^d \times \mb{R}$ where $y_s = x_s^{\top}\theta + \epsilon_s$ where we assume $\epsilon_s$ is mean-zero $1$-sub-Gaussian noise. We also assume that $\{x_s\}_{s=1}^t$ form a \textit{fixed-design}, that is, we are assuming that the choice of $x_s$ is independent of the choice of $(x_1, y_1), \cdots, (x_{s-1}, y_s)$. 
 
 For a minute we pretend that $\epsilon_s$ is exactly Gaussian noise with variance 1, and we assume that $V = \sum_{s=1}^t x_s x_s$ is invertible. Then recall the least-squares estimator,
 \[\hat\theta_{\lambda} = \arg\min_{\theta' \in \mathbb{R}^d} \|Y - X\theta'\|^2_2, \hat{theta} = V^{-1} X^{\top} y\]
@@ -203,20 +202,15 @@ We have that
 \end{align*}
 
 Thus $V^{1/2}(\hat{\theta} - \theta) \sim N(0, I)$ so that $\|\hat{\theta} - \theta\|_{V} \sim \chi^2_d$. We can now appeal to the Cramer-Chernoff method, note that for a $\chi^2_d$ random-variable, 
-\begin{align*}
-    
-\end{align*}
 
 We now relax the assumption that the sequence of observations is fixed in advance, and instead introduce the following assumptions
-\begin{itemize}
-    \item 
-\end{itemize}
+
 
 Now let's try this again. As above, let the least squares estimator by 
 \begin{align*}
 \hat{\theta} 
 &= (V + \gamma I)^{-1} X^{\top}y  \\
-&= (V + \lambd I)^{-1} V\theta +  (V + \lambda I)^{-1} \sum_{s=1}^t x_s\epsilon\\
+&= (V + \lambda I)^{-1} V\theta +  (V + \lambda I)^{-1} \sum_{s=1}^t x_s\epsilon\\
 &= (V + \lambda I)^{-1} V\theta +  (V + \lambda I)^{-1}M_t
 \end{align*}
 
