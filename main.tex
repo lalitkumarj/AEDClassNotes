@@ -25,7 +25,8 @@
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\var}{\text{var}}
 \newcommand{\mc}[1]{\mathcal{#1}}
-\newcommand{\1}{\mathbf{1}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\1}[1]{\mathbf{1}\left\{#1\right\}}
 
 \usepackage{pgfplots}
 \usepgfplotslibrary{fillbetween}
@@ -128,16 +129,16 @@ A natural question is how to choose $\tau, n$ to guarantee this result. This is 
 \end{align*}
 where $\Phi$ is the CDF function for a $N(0,1)$. Similarly for the type-2 error,
 \begin{align*}
-    \frac{\mu_0+\Delta - \tau}{\sqrt{1/n}} \leq -z_{\beta} 
+    \frac{\tau - (\mu_0+\Delta) }{\sqrt{1/n}} \leq -z_{\beta} 
 \end{align*}
 See Figure~\ref{}.
 
 Adding these together, we see that it suffices to take
 \begin{align*}
-    n \geq \frac{(\Phi^{-1}(\beta) - \Phi^{-1}(\alpha))^2}{\Delta^2}
+    n \geq \frac{(z_{\alpha} + z_{\beta})^2}{\Delta^2}
 \end{align*}
 
-Now consider the specific case where $\beta = \alpha = \delta$. Using the fact that $\Phi(t) \leq e^{-t^2/2}$ and that $\Phi(t)$ is monotonically increasing, we can upper bound $\Phi^{-1}(\alpha)\leq \sqrt{2\log(1/\delta)}$, so we see that with probability greater than $1-2\delta$, if $n\geq 8\log(1/\delta)/\Delta^2$ we will return the correct hypothesis. \qed\\
+Now consider the specific case where $\beta = \alpha = \delta$. Using the fact that $1-\Phi(t) \leq e^{-t^2/2}$ and that $\Phi(t)$ is monotonically increasing, we can upper bound $z_{\delta}\leq \sqrt{2\log(1/\delta)}$, so we see that with probability greater than $1-2\delta$, if $n\geq 8\log(1/\delta)/\Delta^2$ we will return the correct hypothesis. \qed\\
 
 
 \noindent\textbf{Lower Bounds. } The natural question to ask is, how tight is this? Can we do better? In fact, we can prove a lower bound. Recall that the KL-Divergence between two distributions $p_0, p_1$ (supported on $\mathbb{R}$) is 
@@ -252,13 +253,13 @@ and similarly
 We now compute these expected stopping times in a slightly different way. Ignoring the ``overshoot'' of the path.
 \begin{align*}
 \E_0[\log(\Lambda_{\tau})]
-&= \E_0[\log(\Lambda_{\tau})\1\{\Lambda_{\tau} \leq \gamma_0\}] + \E_0[\log(\Lambda_{\tau})\1\{\Lambda_{\tau} > \gamma_1\}]
+&= \E_0[\log(\Lambda_{\tau})\1{\Lambda_{\tau} \leq \gamma_0}] + \E_0[\log(\Lambda_{\tau})\1{\Lambda_{\tau} > \gamma_1}]
 &\approx \log(\gamma_0)(1-\alpha) + \log(\gamma_1)\alpha
 \end{align*}
 and similarly
 \begin{align*}
 \E_1[\log(\Lambda_{\tau})]
-&= \E_1[\log(\Lambda_{\tau})\1\{\Lambda_{\tau} \leq \gamma_0\}] + \E_0[\log(\Lambda_{\tau})\1\{\Lambda_{\tau} > \gamma_1\}]
+&= \E_1[\log(\Lambda_{\tau})\1{\Lambda_{\tau} \leq \gamma_0}] + \E_0[\log(\Lambda_{\tau})\1{\Lambda_{\tau} > \gamma_1}]
 &\approx \log(\gamma_0)\beta + \log(\gamma_1)(1-\beta)
 \end{align*}
 
@@ -323,11 +324,10 @@ We assume that $\mu_i = \E_{X\sim \nu_i}[X]$ is the expectation of the $i$-th ar
         R_{n} &= \max_{i\leq [K]}\E\left[\sum_{t=1}^n X_{i, t} - \sum_{t=1}^n X_{I_t, t}\right]
               &= \max_{i\leq [K]} \mu_i T - \E[\sum_{t=1}^n X_{I_t, t}]
     \end{align*}
-    Our goal is to design a procedure that minimizes the regret. Ideally the regret is sub-linear in $T$.
-    
+    Our goal is to design a procedure that minimizes the regret. Ideally the regret is sub-linear in $n$.
     Here we should be careful about what we mean by expectation. The expectation is being taken over all randomness in the rewards \textit{and} the randomness of the algorithm. 
 
-    \footnote{To be precise, define $\mathcal{F}_t$ as the sigma-algebra induced by the random variables0 }
+    \footnote{To be precise, define $\mathcal{F}_t$ as the sigma-algebra induced by the random variables. See \cite{lattimore2020bandit} for details. }
 \end{enumerate}
 
 \example A natural strategy to try to minimize regret is to pull each arm once, maintain an estimate $\hat{\mu}_{i,t}$ for each arm at each time, and then set $I_t = \arg\max_{i\in [K]} \hat{\mu}_{i,t-1}$. This is often known as a \textit{Greedy} heuristic. 
@@ -341,15 +341,15 @@ Let $\mu_{\ast} = \max_{i\in [K]} \mu_i$.
 \begin{lemma}
     Define $\Delta_i = \mu_{\ast} - \mu_i$. Then
     \[R_n = \sum_{t=1}^n\Delta_i\E[T_i]\]
-    where $T_i = \sum_{t=1}^n \1\{I_t = i\}$
+    where $T_i = \sum_{t=1}^n \1{I_t = i}$
 \end{lemma}
 \begin{proof}
     \begin{align*}
         R_n 
         &= \mu_{\ast} T - \E\left[\sum_{t=1}^n X_{I_t, t}\right]\\
-        &= \mu_{\ast} T - \E\left[\sum_{i=1}^{K}\sum_{t=1}^n \1\{I_t = i\} X_{I_t, t}\right]\\
-        &= \mu_{\ast} T - \sum_{i=1}^{K}\E\left[\sum_{t=1}^n \1\{I_t = i\} X_{I_t, t}\right]\\
-        &= \mu_{\ast} T - \sum_{i=1}^{K}\mu_i\E\left[\sum_{t=1}^n \1\{I_t = i\} \right]\\
+        &= \mu_{\ast} T - \E\left[\sum_{i=1}^{K}\sum_{t=1}^n \1{I_t = i} X_{I_t, t}\right]\\
+        &= \mu_{\ast} T - \sum_{i=1}^{K}\E\left[\sum_{t=1}^n \1{I_t = i} X_{I_t, t}\right]\\
+        &= \mu_{\ast} T - \sum_{i=1}^{K}\mu_i\E\left[\sum_{t=1}^n \1{I_t = i} \right]\\
         &=  \mu_{\ast} T - \sum_{i=1}^{K}\mu_i\E[T_i]\\
         &= \sum_{i=1}^K \Delta_i \E[T_i]
     \end{align*}
@@ -451,7 +451,7 @@ Let $X_1, \cdots, X_n$ be i.i.d. $\sigma^2$-subGaussian random variables with me
 \begin{proof}
      By the previous, the upper and lower bounds each fail with probability at most $1\delta/2$. So the probability that either fail is at most $\delta/2 + \delta/2 = \delta$.
 
-    Let's make this more formal. Let $\mathcal{E}_1 = \1\{\bar{X}_n - \mu \geq \sqrt{\frac{2\sigma^2\log(2/\delta)}{n}}\}$ and $\mathcal{E}_2 = \1\{\bar{X}_n - \mu \geq \sqrt{\frac{2\sigma^2\log(2/\delta)}{n}}\}$. Then \[\P(\mathcal{E}_1\cup\mathcal{E}_2) \leq \P(\mathcal{E}_1) + \P(\mathcal{E}_2) \leq \frac{\delta}{2} + \frac{\delta}{2} \leq \delta\]
+    Let's make this more formal. Let $\mathcal{E}_1 = \1{\bar{X}_n - \mu \geq \sqrt{\frac{2\sigma^2\log(2/\delta)}{n}}}$ and $\mathcal{E}_2 = \1{\bar{X}_n - \mu \geq \sqrt{\frac{2\sigma^2\log(2/\delta)}{n}}}$. Then \[\P(\mathcal{E}_1\cup\mathcal{E}_2) \leq \P(\mathcal{E}_1) + \P(\mathcal{E}_2) \leq \frac{\delta}{2} + \frac{\delta}{2} \leq \delta\]
 \end{proof}    
 
 \subsubsection{Explore Than Commit}
@@ -464,12 +464,12 @@ Let's exercise some of our concentration knowledge. We assume that each $\nu_i$ 
 \For{$i=1,\cdots, K$} 
     \State Pull Arm $i$ $\tau$ times. 
 \EndFor
-\State Define $\hat{\mu}_{i,n} = \frac{1}{T_i} \sum_{t=1}^n \1\{I_t = i\} X_{i,t}$
+\State Define $\hat{\mu}_{i,n} = \frac{1}{T_i} \sum_{t=1}^n \1{I_t = i} X_{i,t}$
 \State Pull arm $\hat{i} = \arg\max \hat{\mu}_{i,n}$ for the rest of time, $t\in [K\tau,n]$.
 \end{algorithmic}
 \end{algorithm}
 
-Define $\hat{\mu}_{i,n} = \frac{1}{T_i} \sum_{t=1}^n \1\{I_t = i\} X_{i,t}$ (i.e. the empirical mean of the $i$-th arm). 
+Define $\hat{\mu}_{i,n} = \frac{1}{T_i} \sum_{t=1}^n \1{I_t = i} X_{i,t}$ (i.e. the empirical mean of the $i$-th arm). 
 
 \begin{theorem}
       \begin{align*}
@@ -481,7 +481,7 @@ Define $\hat{\mu}_{i,n} = \frac{1}{T_i} \sum_{t=1}^n \1\{I_t = i\} X_{i,t}$ (i.e
     \begin{align*}
         R_n 
         &= \sum_{i=1}^K \Delta_i \E[T_i]\\
-        &= \tau\sum_{i=1}^K \Delta_i + (n-K\tau)\E[\sum_{i=1}^K \Delta_i\1{\hat{i}=i}]\\
+        &= \tau\sum_{i=1}^K \Delta_i + (n-K\tau)\E\left[\sum_{i=1}^K \Delta_i\1{\hat{i}=i}\right]\\
         &= \tau\sum_{i=1}^K \Delta_i + (n-K\tau)\sum_{i=1}^K \Delta_i\P(\1{\hat{i}=i})
     \end{align*}
 
@@ -504,7 +504,9 @@ This expression kind of tells us how to choose $\tau$.  By taking $\tau =\lceil 
 \begin{align*}
     R_n \leq \min\{n\Delta,  \Delta + \frac{4}{\Delta}\log\left(\frac{n\Delta^2}{4}\right)\}
 \end{align*}
-\exercise Show this choice of $\tau$ minimizes the regret
+
+\exercise Show this choice of $\tau$ minimizes the regret. How do you interpret $\tau$ from our previous perspective of A/B testing?
+
 This is an \textit{instance-dependent} bound for this algorithm - it scales logarithmically in $T$! Certainly, sub-linear regret. Setting $\Delta = \sqrt{4\log(4n)/n}$ we actually see that
 \[R_n \leq O(\sqrt{n\log(n)}).\]
  This is a minimax or worst-case bound.
@@ -522,8 +524,119 @@ If $\tau = n^{2/3}$, we have that
 \end{align*}
 
 
+\subsubsection{Elimination}
+\begin{algorithm}
+\caption{An algorithm with caption}\label{alg:cap}
+\begin{algorithmic}
+\State $[K]$, $\tau$, $n$
+\For{$i=1,\cdots, K$} 
+    \State Pull Arm $i$ $\tau$ times. 
+\EndFor
+\State Define $\hat{\mu}_{i,n} = \frac{1}{T_i} \sum_{t=1}^n \1{I_t = i} X_{i,t}$
+\State Pull arm $\hat{i} = \arg\max \hat{\mu}_{i,n}$ for the rest of time, $t\in [K\tau,n]$.
+\end{algorithmic}
+\end{algorithm}
+
+Without loss of generality we assume that arm 1 has the highest mean. Define $\Delta_i = \mu_1 - \mu_i, 2\leq i\leq K$ and $\Delta_1 = \Delta_2$.
+Define \[\mathcal{E_{i,t}} = \{|\hat{\mu}_{i,t} - \mu_i| < \sqrt{\frac{2\log(2Kt^2/\delta)}{t}}\}\]
+\[\mathcal{E}_i = \bigcap_{t=1}^{\infty} \mathcal{E}_{i,t}\]
+\[\mathcal{E} = \bigcap_{i=1}^{k} \mathcal{E}_{i}\]
+
+
+\begin{lemma}
+$\P(\mathcal{E}) \geq 1-\delta$
+\end{lemma}
+\begin{proof}
+    It's easiest to consider the complement. Firstly by Hoeffding's inequality, $\P(\mc{E}_{i,t}^c) \leq \frac{\delta}{Kt^2}$. Then the union bound ($\P(A\cup B)\leq \P(A) + \P(B)$) tells us
+    \[\P(\mc{E})_i\leq \sum_{t=1}^{\infty} \sum \P(\mc{E}_{i,t})\leq \sum_{t=1}^{\infty} \frac{\delta}{Kt^2}\leq \frac{2}{K}\]
+    Then finally 
+    \[\P(\mc{E}^c) \leq \sum_{i=1}^K \frac{\delta}{K} = \delta\]
+\end{proof}
+\remark This is known as an \textit{anytime} confidence interval since it bounds the deviation at all times uniformly with high probability. More on this in the next chapter.
+
+
+\begin{lemma}
+    On $\mc{E}$, arm $1$ is never eliminated
+\end{lemma}
+\begin{proof}
+    Assume $\cE$.
+    \begin{align*}        
+         \text{arm 1 is eliminated} &\iff  \exists j, \hat{\mu}_{j,t} - \sqrt{\frac{2\log(2Kt^2/\delta)}{t}} \geq \hat{\mu}_{1,t} + \sqrt{\frac{2\log(2Kt^2/\delta)}{t}}\\
+         &\iff \mu_j \geq \mu_1
+    \end{align*}
+\end{proof}
+
+\begin{lemma}
+    Define $T_i = \sum_{t=1}^{\infty} \1{i\in S_t}$, on $\mc{E}$, $T_i \leq \frac{c \log(K\Delta_i^{-1})}{\Delta_i^2}$ for some absolute constant $c > 0$.
+\end{lemma}
+\begin{proof}
+    Assume $\cE$. Then for any arm $i$,
+    \[\hat{\mu}_{i,t}+\sqrt{\frac{2\log(2Kt^2/\delta)}{t}} \leq \mu_{i}+2\sqrt{\frac{2\log(2Kt^2/\delta)}{t}}\]
+    and
+    \[\hat{\mu}_{1,t}-\sqrt{\frac{2\log(2Kt^2/\delta)}{t}} \geq \mu_{1}-2\sqrt{\frac{2\log(2Kt^2/\delta)}{t}}\]
+
+    Now, we will have that arm $j$ is eliminated by arm 1 if
+    \[\hat{\mu}_{1,t}-\sqrt{\frac{2\log(2Kt^2/\delta)}{t}}  >\hat{\mu}_{i,t}+\sqrt{\frac{2\log(2Kt^2/\delta)}{t}}\]
+    and the latter will happen at any time when 
+    \[ \mu_{1}-2\sqrt{\frac{2\log(2Kt^2/\delta)}{t}} > \mu_{i}+2\sqrt{\frac{2\log(2Kt^2/\delta)}{t}}\]
+    Solving for $t$, we see that there exists an absolute constant $c$ such that the previous is satisfied when $t > \frac{c \log(K\Delta_i^{-1})}{\Delta_i^2}$.
+\end{proof}
+\exercise Show that if $t > 2\log(1/a)/a$, then $at > \log(t)$ for $a> 0$
+%Active learning in multi-armed bandits, Antos, Grover, Szepesvari
+\begin{theorem}\label{thm:elimination-sample-complexity}
+    With probability greater than $1-\delta$, Arm 1 is returned at a time $\tau$ satisfying 
+    \[\tau \leq c\sum_{i=1}^K \frac{\log(K\Delta_i^{-1}/\delta)}{\Delta_i^2}\]
+\end{theorem}
+\begin{proof}
+    On event $\mc{E}$
+    \begin{align*}
+        \tau 
+        &= \sum_{t=1}^{\infty}\sum_{i=1}^{K}\1{i\in S_t}\\
+        &= \sum_{i=1}^{K}\sum_{t=1}^{\infty}\1{i\in S_t}\\
+        &= \sum_{i=1}^K T_i\\
+        &\leq c\sum_{i=1}^K \frac{\log(K\Delta_i^{-1}/\delta)}{\Delta_i^2}
+    \end{align*}
+\end{proof}
+\remark The result of \ref{thm:elimination-sample-complexity} can be improved by a $\log(K)$ \cite{jamieson2014lil}. Matching lower bounds are given in \cite{kaufmann2016complexity}.
+
+Let's take a step back, up to constant and $\log$-factors, the above result tells us that the bandit is effectively eliminating each sub-optimal time in a time that is proportional to what would happen in an A/B test if we knew the effect size! It's worth thinking about what a \textit{passive} algorithm which knew each effect size would do. Such a passive algorithm has to choose it's number of samples ahead of time. 
+
+
+It still remans to ask what the opportunity cost of this procedure. The following theorem bounds the regret. 
+
+\begin{theorem}
+    After any number of pulls $T$, the regret is bounded as $O(\sqrt{KT\log(T/\delta)})$.
+\end{theorem}
+\begin{proof}
+    Say we have had $T$ total pulls. For any $\gamma >0$,
+    \begin{align*}
+        R_t 
+        &= \sum_{i=2}^n \Delta_i T_i(T)\tag{$T_i(T)$ denotes the number of pulls up to time $T$}\\
+        &= \sum_{i:\Delta_i \leq \gamma}^n \Delta_i T_i(T) +\sum_{i:\Delta_i > \gamma} \Delta_i T_i(T) \\
+        &= \gamma T +\sum_{i:\Delta_i > \gamma} \Delta_i T_i(T) \\        
+        &\leq \gamma T +c\sum_{i:\Delta_i > \gamma} \Delta_i\frac{\log(K\Delta_i^{-1}/\delta)}{\Delta_i^2} \\        
+        &\leq \gamma T +c\sum_{i:\Delta_i > \gamma} \frac{\log(K\Delta_i^{-1}/\delta)}{\Delta_i} \\        
+    \end{align*}
+
+Now let's consider a few cases.
+\begin{itemize}
+    \item $\gamma = 0$: $R_t \leq O\left(\sum_{i=2}^K \frac{\log(K\Delta_i^{-1}/\delta)}{\Delta_i} \right)$
+    \item $\gamma = \sqrt{K\log(T/\Delta)/T}$: $R_t \leq O\left(\sqrt{KT\log{T}}\right)$
+\end{itemize}
+\end{proof}
+
+It remains to bound the expected regret, note that $\P(E^{c}) \leq \delta$. So,
+\begin{align*}
+    \E[R_T] 
+    &= \sum_{i=1}^{K} \Delta_i \E[T_i] \\
+    &= \sum_{i=1}^K\Delta_i \frac{\log(K\Delta_i^{-1}/\delta)}{\Delta_i} + \Delta_i T\P(\mc{E}) \\
+    &\leq KT\delta + \sum_{i=1}^K\Delta_i \frac{\log(K\Delta_i^{-1}/\delta)}{\Delta_i} 
+\end{align*}
+Taking $\delta = 1/T$ gives us a regret of $O(\sum_{i=2}^K \frac{\log(K T\Delta_i^{-1})}{\Delta_i})$
+
+\input{martingale}
 
 \bibliographystyle{alpha}
 \bibliography{sample}
 
-\end{document}
+\end{document}I

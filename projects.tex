@@ -1,0 +1,96 @@
+\documentclass[11pt]{article}
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,margin=1in]{geometry}
+% Useful packages
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[sectionbib]{chapterbib}
+\usepackage[sorting=none, backend=biber]{biblatex}
+\addbibresource{sample.bib}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newcommand{\example}{\noindent\textbf{Example.\  }}
+\newcommand{\exercise}{\noindent\textit{Exercise.\  }}
+\newcommand{\remark}{\noindent\textit{Remark.}}
+
+
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\var}{\text{var}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\1}[1]{\mathbf{1}\left\{#1\right\}}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{fillbetween}
+\pgfmathdeclarefunction{gauss}{2}{\pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}}
+
+
+\title{Projects for MKTG 596}
+\author{Lalit Jain}
+
+\begin{document}
+\maketitle
+
+\section{Causal Bandits}
+\begin{refsection}
+In the causal bandit problem, the interventions are setting values on a set of random variables which are nodes in a causal DAG. Setting these values yields an impact on a downstream node, and the goal of the experimenter is to set these nodes in such a way to minimize regret. Causal bandits model more complicated settings in practice where the connection between upstream interventions and downstream reward may be hard to model.
+
+\nocite{lattimore2016causal,lu2020regret, lu2021causal,sen2017identifying, bilodeau2022adaptively}
+
+
+\printbibliography[heading=subbibliography]
+\end{refsection}
+
+
+\section{Experimentation in Two-Sided platforms}
+\begin{refsection}
+In online marketplaces, platforms may want to run A/B tests to estimate the effect of an intervention. In these settings, they may choose to randomize customers into the treatment and control groups, yet because of the design of the marketplace the customers may still itneract violating SUTVA assumptions. This is the case for example on AirBnb - if one customer books a room, that place is no longer available influencing the actions of other customers.
+
+\nocite{johari2022experimental, goli2022bias, holtz2020reducing, bajari2021multiple}
+\printbibliography[heading=subbibliography]
+\end{refsection}
+
+\section{Infinite-armed bandits}
+\begin{refsection}
+In many settings, the number of arms considered in a MAB setup may be extremely large or even infinite. There are several ways to handle this, eg we can assume that we have some additional information about each arm, or we can assume that the reward function has some additional structure. One common model, often referred to as infinite-armed-bandits is to assume that the arms are drawn from some underlying distribution which is potentially unknown. The goal of the learner is to pull each arm sufficiently many times to learn something about this underlying distribution. Infinite armed bandits tie into many interesting problems in Bayesian decision theory, hyperparameter optimization, and representation learning.
+
+
+\nocite{chan2019optimal, jain2018firing, kalvit2020finite, berry1997bandit, wang2022beyond, carpentier2015simple, wang2008algorithms, li2017hyperband, bayati2020unreasonable}
+\printbibliography[heading=subbibliography]
+\end{refsection}
+
+
+\section{Matrix Completion and Experimentation}
+\begin{refsection}
+    
+Causal inference is fundamentally a missing data problem. If we observe the outcome of a unit on the treatment, we missed seeing their outcome on the control, and hence we can't estimate the treatment effect. Recent work has applied low rank matrix completion methods to this problem and has made exciting and interesting connections with synthetic control.
+
+\nocite{athey2021matrix, arkhangelsky2021synthetic, farias2021learning, agarwal2021causal, dwivedi2022counterfactual}
+\printbibliography[heading=subbibliography]
+\end{refsection}
+
+
+\section{Time Varying Bandits}
+\begin{refsection}
+
+In our class we mostly took a stochastic approach where environments were not changing. In practice, the world is constantly moving and we need algorithms that can react robustly. There is a huge literature out there on time-varying bandits, but in recent years we have made exciting progress on both switching and adversarial settings. 
+
+\nocite{qin2022adaptivity, zimmert2021tsallis, suk2021tracking, auer2019achieving, abbasi2018best}
+\printbibliography[heading=subbibliography]
+\end{refsection}
+
+
+
+\end{document}
