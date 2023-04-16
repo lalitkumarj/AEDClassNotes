@@ -10,16 +10,26 @@ jobs:
         uses: xu-cheng/latex-action@v2
         with:
           root_file: main.tex
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: hw1.tex
       - name: Upload a build artifact
         uses: actions/upload-artifact@v2.3.1
         with:
           name: PDF
           path: main.pdf
+      - name: Upload a build artifact
+        uses: actions/upload-artifact@v2.3.1
+        with:
+          name: PDF
+          path: hw1.pdf
       - name: Upload file to repository
         run: |
           git config --global user.name "lalitkumarj"
           git config --global user.email "lalitkumarj@gmail.com"
           git add main.pdf
+          git add hw1.pdf
           git commit -m "commit message"
       - name: Push changes
         uses: ad-m/github-push-action@master
