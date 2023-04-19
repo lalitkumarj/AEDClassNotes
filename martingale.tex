@@ -167,7 +167,7 @@ Taking $\rho = 1$ we see that
     \label{fig:my_label}
 \end{figure}
 
-How do we choose $\rho$ ? Essentially the idea is given by Figure \ref{fig:}. Setting $u(t) = \sqrt{\frac{t + \rho^{-2}}{\rho^{-2}}\log\left(\frac{t+\rho^{-2}}{\rho^{-2} \delta^2}\right)}$, we have plotted $u(t)/\sqrt{t}$. Effectively, considering the normalized process $S_t/\sqrt{t}$, we want to choose $\rho$ so that the resulting boundary $u(t)/\sqrt{t}$ is minimized at an appropriate time $t_0$. In practice, this means that if you have the budget for a two week experiment, choose set $t_0$ appropriately and then solve for the value of $\rho$ which results in a curve pinching at $t_0$. See \cite{howard2021time} for more details. 
+How do we choose $\rho$ ? Essentially the idea is given by Figure \ref{fig:}. Setting $u(t) = \sqrt{\frac{t + \rho^{-2}}{\rho^{-2}}\log\left(\frac{t+\rho^{-2}}{\rho^{-2} \delta^2}\right)}$, we have plotted $u(t)/\sqrt{t}$. Effectively, considering the normalized process $S_t/\sqrt{t}$, we want to choose $\rho$ so that the resulting boundary $u(t)/\sqrt{t}$ is minimized at an appropriate time $t_0$. In practice, this means that if you have the budget for a two week experiment, choose set $t_0$ appropriately and then solve for the value of $\rho$ which results in a curve pinching at $t_0$. See \cite{howard2021time} for more details.\\
 
 
 \noindent\textbf{Law of Iterated Logarithm.}
@@ -181,73 +181,95 @@ Nevertheless, it's still reasonable to ask for the tightest possible anytime con
 \end{theorem}
 
 In general the LIL does not hold in finite time with a constant of 2. However, several works have provided finite time versions with slightly worse constants. The best one that I know of is from \cite{howard2021time} which shows,
-\[\P(\exists t\leq 10^20: S_t\geq 1.7\sqrt{t(\log\log(e t) + 3.46)})\leq 0.025\]
+\[\P(\exists t\leq 10^20: S_t\geq 1.7\sqrt{t(\log\log(e t) + 3.46)})\leq 0.025\]\\
 
 
 \noindent \textbf{Anytime Inference in Linear Regression.} 
 
 Imagine that we have collected a dataset $(x_1, y_1), \cdots, (x_n, y_n) \subset \mathbb{R}^d \times \mb{R}$ where $y_s = x_s^{\top}\theta + \epsilon_s$ where we assume $\epsilon_s$ is mean-zero $1$-sub-Gaussian noise. We also assume that $\{x_s\}_{s=1}^t$ form a \textit{fixed-design}, that is, we are assuming that the choice of $x_s$ is independent of the choice of $(x_1, y_1), \cdots, (x_{s-1}, y_s)$. 
 
-For a minute we pretend that $\epsilon_s$ is exactly Gaussian noise with variance 1, and we assume that $V = \sum_{s=1}^t x_s x_s$ is invertible. Then recall the least-squares estimator,
-\[\hat\theta_{\lambda} = \arg\min_{\theta' \in \mathbb{R}^d} \|Y - X\theta'\|^2_2, \hat{theta} = V^{-1} X^{\top} y\]
+For a minute we pretend that $\epsilon_s$ is exactly Gaussian noise with variance 1, and we assume that $V_t = \sum_{s=1}^t x_s x_s$ is invertible. Then recall the least-squares estimator,
+\[\hat\theta_{\lambda} = \arg\min_{\theta' \in \mathbb{R}^d} \|Y - X\theta'\|^2_2, \hat{\theta} = V_t^{-1} X^{\top} y\]
 where $X = [x_1, \cdots, x_n]^{\top} \in \mathbb{R}^{n\times d}$ and $Y = [y_1, \cdots, y_n]\in\mathbb{R}^n$. 
 
 We have that 
 \begin{align*}
     \hat{\theta}
-    &= V^{-1} X^{\top} y\\
-    &= V^{-1} X^{\top} ( X\theta + \epsilon)\\
-    &= \theta + V^{-1} X^{\top}\epsilon\\
-    &= \theta + N(0, V^{-1})
+    &= V_t^{-1} X^{\top} y\\
+    &= V_t^{-1} X^{\top} ( X\theta + \epsilon)\\
+    &= \theta + V_t^{-1} X^{\top}\epsilon\\
+    &= \theta + N(0, V_t^{-1})
 \end{align*}
 
-Thus $V^{1/2}(\hat{\theta} - \theta) \sim N(0, I)$ so that $\|\hat{\theta} - \theta\|_{V} \sim \chi^2_d$. We can now appeal to the Cramer-Chernoff method, note that for a $\chi^2_d$ random-variable, 
+Thus $V_t^{1/2}(\hat{\theta} - \theta) \sim N(0, I)$ so that $\|\hat{\theta} - \theta\|_{V} \sim \chi^2_d$. We can now appeal to the Cramer-Chernoff method, note that for a $\chi^2_d$ random-variable, 
 
-We now relax the assumption that the sequence of observations is fixed in advance, and instead introduce the following assumptions
+%We now relax the assumption that the sequence of observations is fixed in advance, and instead, introduce the following assumptions. 
 
 
-Now let's try this again. As above, let the least squares estimator by 
+Let's try this again. Define the filtration $\mc{F}_t = \sigma(\{x_1, y_1, \cdots, x_{t-1}, y_{t-1}, x_t\})$ and assume that $\epsilon_t$ is 1-subGaussian conditional on $\mc{F}_{t-1}$, that is, $\E[e^{\lambda \epsilon_s}|\mc{F}_{t-1}] \leq e^{\lambda^2/2}$. 
+
+
+As above, let the least squares estimator by 
 \begin{align*}
 \hat{\theta} 
-&= (V + \gamma I)^{-1} X^{\top}y  \\
-&= (V + \lambda I)^{-1} V\theta +  (V + \lambda I)^{-1} \sum_{s=1}^t x_s\epsilon\\
-&= (V + \lambda I)^{-1} V\theta +  (V + \lambda I)^{-1}M_t
+&= (V_t + \gamma I)^{-1} X^{\top}y  \\
+&= (V_t + \gamma I)^{-1} V_t\theta +  (V_t + \gamma I)^{-1} \sum_{s=1}^t x_s\epsilon_s\\
+&= (V_t + \gamma I)^{-1} V_t\theta +  (V_t +\gamma I)^{-1}S_t
 \end{align*}
 
 Now at the same time
 \begin{align*}
 \|\hat{\theta} - \theta\|_{V_t + \gamma I}
-&= \|(V + \gamma I)^{-1} V\theta +  (V + \gamma I)^{-1}M_t - \theta\|_{V_t + \gamma I}\\
-&= \|\gamma (V + \gamma I)^{-1} \theta +  (V + \gamma I)^{-1}S_t \|_{V_t + \gamma I}\\
+&= \|(V_t + \gamma I)^{-1} V_t\theta +  (V_t + \gamma I)^{-1}S_t - \theta\|_{V_t + \gamma I}\\
+&= \|\gamma (V_t + \gamma I)^{-1} \theta +  (V_t + \gamma I)^{-1}S_t \|_{V_t + \gamma I}\\
 &= \|\gamma \theta +  S_t \|_{(V_t + \gamma I)^{-1}}\\
 &\leq \gamma\|\theta\|_{(V_t + \gamma I)^{-1}} + \|S_t\|_{(V_t + \gamma I)^{-1}}\\
 &\leq \sqrt{\gamma}\|\theta\|_{2} + \|S_t\|_{(V_t + \gamma I)^{-1}}
 \end{align*}
 
-So the main game in town is $S_t$ - looking at it, if we could indeed conclude that the $x_s$'s were independent, standard concentration bounds would kick-in and we could easily bound it as above. However, we are allowing our sequences of $x_s$'s to be adaptive so we need a much more careful analysis. We will employ the ideas we used for the MSPRT.
+So the main game in town is $S_t$ - if we could indeed conclude that the $x_s$'s were independent, standard concentration bounds would kick in and we could easily bound it as above. However, we are allowing our sequences of $x_s$'s to be adaptive so we need a much more careful analysis. We will employ the ideas we used for the MSPRT.
 
-To proceed, firstly note that for any $\psi\in \mathbb{R}^d$ that $M_t(\lambda) = \exp\left( \langle \lambda, S_t\rangle - \frac{\|\lambda\|_{V_t}^2}{2} \right)$ , 
+To proceed, firstly note that for any $\lambda\in \mathbb{R}^d$ that $M_t(\lambda) = \exp\left( \langle \lambda, S_t\rangle - \frac{\|\lambda\|_{V_t}^2}{2} \right)$ , 
 where $V_t = \sum_{s=1}^t x_s x_s^{\top}$, is a super-Martingale. Then Ville's inequality automatically implies a linear boundary in this case, guaranteeing that $\P(\sup_{t\geq }\log(\bar{M}_t) \geq \log(1/\delta)) \leq \delta$
 
-\exercise Check that $M_t$ forms a martingale sequence. 
+\exercise Check that $M_t$ forms a super-martingale. 
 
-Now, place a distribution $N(0, \gamma^{-1}I)$ over our choice of $\lambda$, and as we did with the MSPRT, we will now consider the Martingale $\bar{M}_t = \frac{1}{\sqrt{2\pi\gamma^{-d}}}\int M_t(\lambda) e^{-\frac{\|\lambda\|^2}{2\gamma^{-1}}} d\lambda$. We compute,
+Now we place a distribution $N(0, \gamma^{-1}I)$ over our choice of $\lambda$. As we did with the MSPRT, we will now consider the Martingale $\bar{M}_t = \frac{1}{\sqrt{2\pi\gamma^{-d}}}\int M_t(\lambda) e^{-\frac{\|\lambda\|^2}{2\gamma^{-1}}} d\lambda$. We compute,
 \begin{align*}
     \bar{M}_t 
-    &= \frac{1}{\sqrt{2\pi\gamma^{-d}}}\int  e^{\langle\lambda, S_t\rangle -\frac{\|\lambda\|_{V + \gamma I}^2}{2}-\frac{\|\lambda\|^2\gamma}{2}} d\lambda\\
-    &= \frac{1}{\sqrt{2\pi\gamma^{-d}}}\int e^{\frac{1}{2}\|S_t\|^2_(V_t + \gamma I)^{-1} - \frac{1}{2}\|(V_t + \gamma I)^{-1} S_t - \lambda\|^2_{V_t + \gamma I}} d\lambda\\
-    &= \frac{|V_t + \gamma I|^{-1/2}}{\gamma^{-d/2}}\int e^{\frac{1}{2}\|S_t\|^2_(V_t +\gamma I )^{-1}} 
+    &= \frac{1}{\sqrt{2\pi\gamma^{-d}}}\int  e^{\langle\lambda, S_t\rangle -\frac{\|\lambda\|_{V_t}^2}{2}-\frac{\|\lambda\|^2\gamma}{2}} d\lambda\\
+    &= \frac{1}{\sqrt{2\pi\gamma^{-d}}}\int e^{\frac{1}{2}\|S_t\|^2_{(V_t + \gamma I)^{-1}} - \frac{1}{2}\|(V_t + \gamma I)^{-1} S_t - \lambda\|^2_{V_t + \gamma I}} d\lambda\\
+    &= \frac{|V_t + \gamma I|^{-1/2}}{\gamma^{-d/2}} e^{\frac{1}{2}\|S_t\|^2_{(V_t +\gamma I )^{-1}}} 
 \end{align*}
 
 Plugging this into our confidence inequality above, gives that with probability greater than $1-\delta$, for all $t\geq 0$
-\[\|S_t\|_{V_t(\lambda)^{-1}} \leq \sqrt{2\log(1/\delta) + \log{\frac{|V_t + \gamma I|}{\gamma^d}}}\]
-
+\[\|S_t\|_{(V_t + \gamma I)^{-1}} \leq \sqrt{2\log(1/\delta) + \log{\frac{|V_t + \gamma I|}{\gamma^d}}}\]
 It remains to bound the second term under the square root. 
 
+\begin{align*}
+    \frac{|V_t + \gamma I|}{\gamma^d}
+    &= \frac{1}{\gamma^d}\prod_{i=1}^d (\lambda_i + \gamma)\\
+    &\leq \left(\frac{\sum_{i=1}^d \lambda_i +\gamma d}{\gamma}\right)^d\\
+    &= \left(\frac{\text{trace}(V_t) +\gamma d}{\gamma}\right)^d\\
+    &= \left(\frac{t L +\gamma d}{\gamma}\right)^d
+\end{align*}
+We summarize the above in a Theorem. 
 
-
-Firstly, we state the punch-line.
-
+\begin{theorem}\label{thm:lsqtsq}
+    Fix $\delta \in (0,1)$. Assume that we have a sequence of data $x_1, y_1, \cdots, x_t, y_t, \cdots$. Let $\mc{F}_{t-1} = \sigma(\{x_1, y_1, \cdots, x_{t-1}, y_{t-1}, x_t\})$ and assume for all $t\geq 1$
+    \begin{itemize}
+    \item $x_t$ is $\mc{F}_{t-1}$ measurable and $\|x_t\|2\leq 2$
+    \item $y_t = \theta_{\ast}^{\top} x_t + \epsilon_t$ 
+    \item $\eta_t$ is conditionally subGaussian, $\E[e^{\lambda\epsilon_t}|\mc{F}_{t-1}]\leq e^{\lambda^2/2}$.  
+    \end{itemize}
+    If $\hat{\theta}_t = (V_t + \gamma I)^{-1} S_t$ with $V_t = \sum_{t=1}^n x_t x_t^{\top}$ and $S_t = \sum_{t=1}^n x_t \epsilon_t$ then 
+    \begin{align*}
+        \|\hat{\theta} - \theta_{\ast}\|_{V_t + \gamma I}
+        &\leq \sqrt{\gamma}\|\theta\|_{2} +
+        \sqrt{2\log(1/\delta) + d\log\left(\frac{t L + \gamma d}{\gamma}\right)}
+    \end{align*}
+    
+\end{theorem}
 
 
 

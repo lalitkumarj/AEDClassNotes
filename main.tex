@@ -637,6 +637,182 @@ Taking $\delta = 1/T$ gives us a regret of $O(\sum_{i=2}^K \frac{\log(K T\Delta_
 
 \input{martingale}
 
+\section{Linear Bandits}
+
+This section is based on Chapter 19 of \cite{lattimore2020bandit}.
+Consider the following setting. 
+At each time $t$ we receive a set of arms $\mc{A}_t\subset \mathbb{R}^d$ at which point we choose an arm $a_t\in \mc{A}_t$ and receive a reward $r_t = \langle\theta_{\ast}, a_t\rangle + \epsilon_t$ where $\epsilon_t$ is assumed to be 1-subGaussian noise. 
+Our goal is to minimize the regret, 
+\[R_n \leq \sum_{t=1}^n \max_{a\in \mc{A}_t} \langle a, \theta_{\ast}\rangle - \langle a_t, \theta_{\ast}\rangle\]
+
+This linear bandit setting is extremely general.
+
+\example If $\mc{A}_t = \{e_1, \cdots, e_d\}$ at each time, then we recover the multi-armed bandit setting of before.\\
+
+\example We can also model more general e-commerce settings. Assume at each time a customer arrives to our platform and we we receive a context vector $c_t\in \mc{C}$ representing them. We also have a set of items $\mc{A}_t\subset \mc{A}$ which could represent a set of products or ads that we need to choose between them to show. The reward can represent a click, conversion or purchase. In particular, we also assume that we have a featurization map $\psi:\mc{C}\times \mc{A} \rightarrow \mathbb{R}^d$ so that the reward at time $t$ is given by $r_t = \langle\psi(c_t, a_t)\rangle + \epsilon_t$. Clearly choosing a set of products to minimize regret is equivalent to the linear bandit model above.\\
+
+\example 
+
+
+
+We now describe our algorithms. Given the data up to time $t$, $(A_1, r_1, \cdots, a_{t-1}, r_{t-1})$, a regularization parameter $\lambda > 0$ and an upper bound $B$ on $\|\theta_{\ast}\|_2$, construct the confidence interval based on Theorem~\ref{thm:lstsq}, 
+\begin{align*}
+    \beta_t = \sqrt{\lambda} B + \sqrt{2\log(1/\delta) + d\log(\frac{d\lambda + t}{d\lambda})}     
+\end{align*}
+
+\begin{algorithm}
+\caption{Optimism if the Face of Uncertainty}\label{alg:cap}
+\begin{algorithmic}
+\State Define $V_0 = \lambda I$
+\For{$t=1,\cdots, $} 
+    \State Receive $\mc{A}_t$
+    \State Compute the confidence set 
+    \begin{align*}
+        C_t = \{\theta:\|\theta - \hat{\theta}_t\|_{V_{t-1}} \leq \beta_t\} 
+    \end{align*}
+    \State Let $a_t = \arg\max_{a\in \mc{A}_t, \theta\in C_t} \langle a, \theta\rangle $ 
+    \State Receive reward $r_t$.
+    \State Update $V_{t} = V_{t-1} + a_t a_t^{\top}$ and $\hat{theta}_{t+1} = V_t^{-1}\sum_{s=1}^{t} r_t a_t$.
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}
+    Assume that $\max_{a\in \mc{A}_{t}}|\langle\theta_{\ast}, a\rangle| \leq 2, \forall t\geq 1$. With probability greater than $1-\delta$, the regret of OFUL over $n$ steps is bounded by
+    \begin{align*}
+        R_n 
+        &\leq 2\sqrt{8n\beta_n \log\left(\frac{nL + \gamma d}{\gamma}\right)}\\
+        &\leq O(d\sqrt{n}\log(n L/\delta))
+    \end{align*}
+\end{theorem}
+\begin{proof}
+    We begin by defining the event 
+    \[\mc{E} = \bigcup_{t=1}^{\infty} \{\theta_{\ast} \in \mc{C}_t\}\]
+    By Theorem~\ref{thm:lsqtsq}, $\P(\mc{E}) \geq 1-\delta$. Throughout the following abbreviate $V_t(\gamma) = V_t + \gamma I$.
+
+    Let $a_{t}^{\ast} = \arg\max_{a\in \mc{A}_t} \langle a, \theta_{\ast}\rangle$ be the true best arm in round $t$. Then in any round $t$
+    \begin{align*}
+        \langle \theta_{\ast}, a_t^{\ast} - a_t\rangle
+        &= \langle\theta_{\ast}, a_t^{\ast}\rangle  - \langle\theta_{\ast},a_t\rangle\\
+        &\leq \max_{\theta\in C_t}\langle\theta, a_t\rangle  - \langle\theta_{\ast},a_t\rangle\tag{Optimism}\\
+        &=\max_{\theta\in C_t}\langle\theta - \theta_{\ast}, a_t \rangle\\
+        &=\max_{\theta\in C_t}\|\theta - \theta_{\ast}\|_{V_{t-1}(\gamma)} \|a_t\|_{V_{t-1}^{-1}(\gamma)}\\
+        &\leq 2\beta_t \|a_t\|_{V_{t-1}^{-1}}  \tag{$\|\theta - \theta_{\ast}\|_{V_{t-1}(\gamma)} \leq \|\theta - \theta_{\ast}\|_{V_{t-1}(\gamma)} +\|\theta - \theta_{\ast}\|_{V_{t-1}(\gamma)}$}
+    \end{align*}
+
+    Note that we also have (by assumption) $\langle\theta_{\ast}, a_t^{\ast} - a_t\rangle \leq 2$. We can now bound the regret
+    \begin{align*}
+        R_{n} 
+        &= \sum_{t=1}^n \langle \theta_{\ast}, a_t^{\ast} - a_t\rangle\\
+        &\leq \sqrt{n \sum_{t=1}^n \langle \theta_{\ast}, a_t^{\ast} - a_t\rangle^2}\\
+        &\leq \sqrt{2\beta_t^2 n \sum_{t=1}^n 1\wedge\|a_t\|^2_{V_{t-1}(\gamma)^{-1}}}
+    \end{align*}
+
+
+We now need to bound the second term. Firstly note that 
+\begin{align*}
+|V_t(\gamma)| &= 
+|V_{t-1}(\gamma) + a_{t} a_{t}^{\top}| \\
+&= |V_{t-1}^{1/2}(\gamma)(I + V_{t-1}^{-1/2}(\gamma)a_ta_t^{\top} V_{t-1}^{-1/2}(\gamma))V_{t-1}^{1/2}(\gamma)|\\
+&= |V_{t-1}(\gamma)|(1 + \|a\|^2_{V_{t-1}^{-1}(\gamma)})
+\end{align*}
+
+
+Using the fact that $x \leq 2\log(1+x)$
+\begin{align*}
+    \sum_{t=1}^n 1\wedge\|a_t\|^2_{V_{t-1}^{-1}} 
+    &\leq 2\sum_{t=1}^n \log(1+\|a_t\|^2_{V_{t-1}^{-1}} )\\
+    &\leq 2\sum_{t=1}^n \log(\frac{|V_{t}|}{V_{t-1}})\\
+    &\leq 2\log(\frac{|V_{n}|}{|\gamma I|})\\
+    &\leq 2d\log\left(\frac{n L + \gamma d}{\gamma}\right)
+\end{align*}
+
+Thus we see that the regret of the algorithm is roughly $O(d\sqrt{n} \log(n))$
+\end{proof}
+
+\section{Thompson Sampling}
+
+We will continue discussing Linear Bandits and the setting of above, but we will now switch algorithms to Thompson Sampling. Developed in 1933, Thompson Sampling is one of the oldest multi-armed bandit algorithms and it is widely used in production systems due to it's ease of implementation, versatility, and good regret guarantees. Indeed one of the main downsides of our OFUL framework is that explicitly computing the best action can be very computationally challenging.
+
+
+
+Unlike our previous methods which forced exploration or relied on exploration from confidence bounds, Thompson Sampling relies on exploration from a Bayesian posterior. Intuitively, if we are very uncertain about some action, the posterior will be large and Thompson sampling will explore more.
+
+Let's fix notation - we will try to be more general to exploit the power of TS. We refer to a Bayesian bandit environment as a tuple $(\Theta, \Pi, \mc{A}, \mc{F}, P)$, where
+\begin{itemize}
+    \item $\Theta$ is an underlying parameter or index set (implicitly with an underlying $\sigma$-algebra)\footnote{I will not be too careful here. For a very precise study of the measure theoretic issues see, Chapter 34 of \cite{lattimore2020bandit}.}
+    \item $\Pi$, the prior, is a measure on $\Theta$
+    \item $\mc{A}$ is a set of actions
+    \item $\mc{F}=\{f_{\theta}:\mc{A}\rightarrow \mathbb{R}|\theta\in \Theta\}$
+    \item $P(\theta, a), \theta\in \Theta, a\in \mc{A}$ is a distribution.
+\end{itemize}
+
+At each time the agent selects an action $A_t\in \mc{A}_t$ and observes a reward $R_t$. More precisely, 
+\begin{itemize}
+    \item At the start of the game, we assume $\theta\sim \Theta$
+    \item We assume that the learner plays probabilistically according to a policy $\pi = \{\pi_t\}_{t=1}^{\infty}$ where given the history $\mc{H}_t = (A_1, R_1, \cdots, A_{t-1}, R_{t-1})$, $\pi_t(\mc{H})_t$ is a distribution over $\mc{A}$. I.e., $\P(A_t = a|\mc{H}_t) = \pi_t(a)$.
+    \item Finally, $\P(R_t = \cdot |\mc{H}_{t-1},A_t,\theta) = P(\theta, A_t)(\cdot)$ and $\E[R_t|\mc{H}_{t-1}] = f_{\theta}(A_t)$
+\end{itemize}
+
+The goal of the learner is to minimize their Bayesian Regret, that is 
+\[BR(T,\pi, \Pi) = \E_{\theta\sim \Pi}[\sum_{t=1}^T \max{a\in \mc{A}} f_{\theta}(a) - f_{\theta}(A_t)] \]
+
+%We assume that we have a setting with a set of actions $\mc{A}$, and a set of functions $\mc{F}=\{f_{\theta}:\mc{A}\rightarrow \mathbb{R}|\theta\in \Theta\}$.  As always, the history at time $t$ is 
+
+
+\remark \textbf{Comparison between Normal Regret and Bayesian Regret.}
+
+\begin{algorithm}
+\caption{Thompson Sampling}\label{alg:cap}
+\begin{algorithmic}
+\State \textbf{Input:} $\mc{F}, \mc{A}, \Pi$
+\State $\Pi_0 \rightarrow \Pi$
+\For{$t=1,\cdots, $} 
+    \State Sample $\theta_t\sim \Pi_{t-1}$
+    \State Set $A_t = \arg\max_{a\in \mc{A}} f_{\theta_t}(a)$
+    \State Receive reward $R_t$
+    \State Update $\Pi_{t+1} = \P(\theta\in \cdot| \mc{H}_{t})$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\example \textbf{Bernoulli Bandits.}
+
+\example \textbf{Linear Bandits.} In that case, we assume that $\mc{A} \subset \mathbb{R}^d$ and  that $f_{\theta}(a) = \theta^{\top} a$.
+
+
+As we will see, Thompson Sampling enjoys excellent regret bounds in many settings.
+
+\subsection{Linear Bandits Revisited}
+Let's now specialize in the case of Linear Bandits. Recall from Theorem~\ref{}, that on some event $\mc{E}$, with $\P(\mc{E})\geq 1-1/n$, we have that
+\[\|\hat{\theta}_t - \theta\| \leq \beta\]
+where $\beta =  1 + \sqrt{s\log(n) + d\log\left(\frac{d + nS^2L^2}{d}\right)}$ (we have taken $\delta = 1/n$ and $\gamma = 1/S$.
+
+Based on this confidence interval, we can define a UCB on each arm at time $t$, 
+\[\beta_t(a) = \langle\hat{\theta}_{t-1}, a\rangle + \beta\|a\|_{V^{-1}_{t-1}}\]
+By the guarantees of the confidence bound, 
+
+\begin{align*}
+    BR_{n} 
+    &= \E[\sum_{t=1}^n \langle a_{\ast} - a_t, \theta \rangle]\\
+    &= \E[\1{\mc{E}}\sum_{t=1}^n \langle a_{\ast} - a_t, \theta \rangle]+
+       \E[\1{\mc{E}^c}\sum_{t=1}^n \langle a_{\ast} - a_t, \theta \rangle]\\
+    &= \E[\1{\mc{E}}\sum_{t=1}^n \langle a_{\ast} - a_t, \theta \rangle] + 2
+    \E[\1{\mc{E}}\sum_{t=1}^n \langle a_{\ast} - a_t, \theta \rangle] + 2
+\end{align*}
+
+Let's go after this first term by using a trick. Firstly note, that under the posterior, $A_{\ast}$ and $A_t$ are identically distributed! Indeed recall that $A_{\ast}$ is a random variable given by $A_{\ast} = \arg\max \langle A, \theta_{\ast}\rangle$ where $\theta_{\ast}$ is drawn from $\Pi$. Conditioned on the history, the distribution of $\theta_{\ast}$ at time $t$ is precisely the posterior, so conditioned on the history, $A_t$ is distributed identically as $A_{\ast}$. 
+
+Thus, we have that $\E[\beta_t(A_t)|\mc{H}_{t-1}] = \E[\beta_t(A_{\ast})|\mc{H}_{t-1}]$. Continuing, we have,
+\begin{align*}
+    \E[\1{\mc{E}}\langle a_{\ast} - a_t, \theta \rangle|\mc{H}_{t-1}]
+    &=  \E[\1{\mc{E}}(\langle a_{\ast}, \theta \rangle - \beta_t(a_{\ast}) + \beta_t(a_{\ast}) - \langle a_{t}, \theta \rangle )|\mc{H}_{t-1}]\\
+    &=  \E[\1{\mc{E}}(\langle a_{\ast}, \theta \rangle - \beta_t(a_{\ast}) + \beta_t(a_{t}) - \langle a_{t}, \theta \rangle )|\mc{H}_{t-1}]\\
+    & \leq \E[\1{\mc{E}}(\beta_t(a_{t}) - \langle a_{t}, \theta \rangle )|\mc{H}_{t-1}]\\
+    & \leq \E[\1{\mc{E}}(\langle a_{t}, \hat{\theta}_{t-1}-\theta \rangle +\beta \|A_t\|_{V^{-1}_{t-1}})|\mc{H}_{t-1}]\\
+    & \leq \E[\1{\mc{E}}(\langle a_{t}, \hat{\theta}_{t-1}-\theta \rangle +\beta \|A_t\|_{V^{-1}_{t-1}})|\mc{H}_{t-1}]
+\end{align*}
+
 \bibliographystyle{alpha}
 \bibliography{sample}
 
